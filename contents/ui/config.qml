@@ -24,6 +24,13 @@ import org.kde.plasma.plasmoid
 KCM.SimpleKCM {
     id: configPage
 
+    // The configuration dialog takes its initial size from the
+    // page's implicit size; open wide enough for the states table
+    // (seven columns plus the form's label column) instead of the
+    // shell's narrower default.
+    implicitWidth: Kirigami.Units.gridUnit * 50
+    implicitHeight: Kirigami.Units.gridUnit * 30
+
     property string cfg_states: ""
     property alias cfg_statusScriptEnabled: statusScriptEnabledBox.checked
     property alias cfg_statusScript: checkStatusScriptText.text
