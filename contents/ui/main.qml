@@ -44,6 +44,14 @@ PlasmoidItem {
     property var states: parseStates(Plasmoid.configuration.states)
     // Index of the state the button currently shows
     property int currentState: 0
+    // True while the instance still runs on the shipped defaults:
+    // no state list stored and the legacy scripts untouched (the
+    // defaults from main.xml). Such an instance has nothing sensible
+    // to show or run, so it renders a placeholder instead of an
+    // empty label next to a lone status icon.
+    property bool unconfigured: Plasmoid.configuration.states === ""
+        && onScript === "sleep 2; exit 0"
+        && offScript === "sleep 1; exit 0"
     // State shown before a button-press script started, restored
     // when that script fails
     property int stateBeforeScript: 0
@@ -180,7 +188,7 @@ PlasmoidItem {
             spacing: 0
             PlasmaComponents.Label {
                 id: commandNameLabel
-                text: commandName
+                text: unconfigured ? i18n("Configure") : commandName
             }
             Item {
                 Layout.fillWidth: true
@@ -189,12 +197,18 @@ PlasmoidItem {
                 id: icon
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                source: states[currentState].icon
+                source: unconfigured ? "configure" : states[currentState].icon
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
                     hoverEnabled: true
-                    onClicked: activateNext()
+                    onClicked: {
+                        if (unconfigured) {
+                            Plasmoid.internalAction("configure").trigger();
+                        } else {
+                            activateNext();
+                        }
+                    }
                 }
                 BusyIndicator {
                     id: busy
