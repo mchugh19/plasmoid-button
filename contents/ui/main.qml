@@ -60,12 +60,17 @@ PlasmoidItem {
     property string tooltipHead: ""
     property string tooltipBody: ""
 
-    Plasmoid.toolTipMainText: root.tooltipHead !== ""
+    // The toolTip* properties live on PlasmoidItem (this root), not
+    // on the Plasmoid attached object: Plasma::Applet exposes none
+    // of them (libplasma's applet.h carries a TODO to add them
+    // there), so Plasmoid.toolTipSubText failed to load with
+    // 'Cannot assign to non-existent property'.
+    toolTipMainText: root.tooltipHead !== ""
         ? root.tooltipHead
         : (root.unconfigured || root.states[root.currentState].name === ""
             ? Plasmoid.title
             : root.states[root.currentState].name)
-    Plasmoid.toolTipSubText: root.tooltipBody
+    toolTipSubText: root.tooltipBody
 
     onStatesChanged: {
         if (currentState >= states.length) {
