@@ -28,17 +28,17 @@ KCM.SimpleKCM {
     property alias cfg_statusScriptEnabled: statusScriptEnabledBox.checked
     property alias cfg_statusScript: checkStatusScriptText.text
     property alias cfg_runStatusOnStart: runStatusScriptBox.checked
+    property alias cfg_showBusyIndicator: showBusyBox.checked
     property alias cfg_updateInterval: updateIntervalSpinBox.value
     property alias cfg_updateIntervalUnit: updateIntervalUnitSpinBox.value
     property string cfg_iconOn: plasmoid.configuration.iconOn
     property string cfg_iconOff: plasmoid.configuration.iconOff
-    property alias cfg_commandName: commandNameText.text
 
     // Explanatory help for the state columns, shown as tooltips on
     // both the column headers and the row controls so every column
     // has it in whichever place the user hovers.
     property string nameHelp: i18n("Name of the state. The status script can select this state by printing its name.")
-    property string scriptHelp: i18n("Command run when the button cycles to this state.")
+    property string scriptHelp: i18n("Command run when the button cycles to this state. It can set the hover tooltip by printing {PlasmoidTooltipHeadStart}...{PlasmoidTooltipHeadEnd} or {PlasmoidTooltipBodyStart}...{PlasmoidTooltipBodyEnd}.")
     property string exitCodeHelp: i18n("A status run ending with this code selects the state.")
     property string iconHelp: i18n("Icon shown for this state. Click to choose a different one.")
     property string runHelp: i18n("Cycle to this state when the button is clicked and run its script. When unchecked, only the status script can select the state.")
@@ -193,26 +193,15 @@ KCM.SimpleKCM {
     Kirigami.FormLayout {
         GridLayout {
             columns: 2
-            Label {
-                Layout.row: 0
-                Layout.column: 0
-                text: i18n("Plasmoid label")
-            }
-            TextField {
-                Layout.row: 0
-                Layout.column: 1
-                id: commandNameText
-                Layout.minimumWidth: 300
-            }
 
             Label {
-                Layout.row: 1
+                Layout.row: 0
                 Layout.column: 0
                 text: i18n("States")
                 font.weight: Font.Bold
             }
             ColumnLayout {
-                Layout.row: 1
+                Layout.row: 0
                 Layout.column: 1
                 Label {
                     text: i18n("Clicking the button cycles to the next state and runs its script.")
@@ -383,16 +372,20 @@ KCM.SimpleKCM {
                         configPage.serializeStates();
                     }
                 }
+                CheckBox {
+                    id: showBusyBox
+                    text: i18n("Show a busy indicator while a script runs")
+                }
             }
 
             Label {
-                Layout.row: 2
+                Layout.row: 1
                 Layout.column: 0
                 text: i18n("Status script")
                 font.weight: Font.Bold
             }
             CheckBox {
-                Layout.row: 2
+                Layout.row: 1
                 Layout.column: 1
                 id: statusScriptEnabledBox
                 checked: checkStatusScriptText.activeFocus || checkStatusScriptText.length
@@ -402,28 +395,28 @@ KCM.SimpleKCM {
             }
 
             Label {
-                Layout.row: 3
+                Layout.row: 2
                 Layout.column: 0
                 text: i18n("Script")
             }
             TextField {
-                Layout.row: 3
+                Layout.row: 2
                 Layout.column: 1
                 id: checkStatusScriptText
                 Layout.minimumWidth: 300
                 enabled: (statusScriptEnabledBox.checked || runStatusScriptBox.checked)
-                ToolTip.text: i18n("Selects a state by printing its name or index, or by exiting with a state's exit code; a run that matches nothing selects the default state")
+                ToolTip.text: i18n("Selects a state by printing its name or index, or by exiting with a state's exit code; a run that matches nothing selects the default state. Any script can also set the hover tooltip by printing {PlasmoidTooltipHeadStart}...{PlasmoidTooltipHeadEnd} or {PlasmoidTooltipBodyStart}...{PlasmoidTooltipBodyEnd}")
                 ToolTip.visible: hovered
             }
 
             Label {
-                Layout.row: 4
+                Layout.row: 3
                 Layout.column: 0
                 text: i18n("Run every")
             }
             GridLayout {
                 columns: 2
-                Layout.row: 4
+                Layout.row: 3
                 Layout.column: 1
                 SpinBox {
                     Layout.row: 0
@@ -463,7 +456,7 @@ KCM.SimpleKCM {
                 }
             }
             CheckBox {
-                Layout.row: 5
+                Layout.row: 4
                 Layout.column: 1
                 id: runStatusScriptBox
                 text: i18n("Check status on startup")
