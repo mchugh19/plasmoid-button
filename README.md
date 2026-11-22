@@ -65,6 +65,26 @@ Each status run selects the state to show, resolved in this order:
 3. The state whose **exit code** matches the run's exit code.
 4. The **default** state, when nothing above matches.
 
+### Hover tooltip
+
+Any script, a state's script or the status script, can also set the
+text of the popup shown when hovering over the button, by printing
+tagged segments on stdout:
+
+- `{PlasmoidTooltipHeadStart}...{PlasmoidTooltipHeadEnd}` sets the
+  popup's main text.
+- `{PlasmoidTooltipBodyStart}...{PlasmoidTooltipBodyEnd}` sets its
+  body text. The shorter `{PlasmoidTooltipStart}...{PlasmoidTooltipEnd}`
+  is accepted for the body as well.
+
+The tags are the ones Scriptinator uses, so scripts written for it
+work unchanged. When a run prints several segments of one kind, the
+last one wins, and the text stays until another run replaces it.
+The segments are removed from the output before the state selection
+above, so a status run can print a state name and a tooltip in one
+go. Until a script sets a main text, the popup shows the current
+state's name.
+
 ## Configuration
 
 The settings page has:
