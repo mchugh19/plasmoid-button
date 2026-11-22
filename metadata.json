@@ -18,15 +18,12 @@
         "Description": "Configurable button to launch scripts and monitor statuses",
         "Description[en_GB]": "Configurable button to launch scripts and monitor statuses",
         "Icon": "emblem-checked",
-        "Id": "com.nytpu.configurable_button",
+        "Id": "com.github.configurable_button",
         "License": "GPL",
         "Name": "Configurable Button",
         "Name[en_GB]": "Configurable Button",
-        "ServiceTypes": [
-            "Plasma/Applet"
-        ],
         "Version": "0.3.0",
-        "Website": "https://github.com/nytpu/plasmoid-button"
+        "Website": "https://github.com/mchugh19/plasmoid-button"
     },
     "KPackageStructure": "Plasma/Applet",
     "X-Plasma-API-Minimum-Version": "6.0",
