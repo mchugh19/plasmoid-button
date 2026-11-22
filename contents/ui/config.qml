@@ -38,6 +38,20 @@ KCM.SimpleKCM {
         id: statesModel
     }
 
+    // Serialise on row add/remove from here, in the page's context.
+    // The remove button cannot do it itself: removing its row
+    // destroys its own delegate, and the rest of its click handler
+    // then runs in that dead context (it threw
+    // 'ReferenceError: configPage is not defined'), so the new list
+    // was never written and the deleted state came back on the
+    // next load.
+    Connections {
+        target: statesModel
+        function onCountChanged() {
+            configPage.serializeStates();
+        }
+    }
+
     function statesToJson() {
         const arr = [];
         for (let i = 0; i < statesModel.count; ++i) {
@@ -181,10 +195,10 @@ KCM.SimpleKCM {
                         Button {
                             icon.name: "list-remove"
                             enabled: statesModel.count > 1
-                            onClicked: {
-                                statesModel.remove(index);
-                                configPage.serializeStates();
-                            }
+                            // Serialising is left to the page-level
+                            // count handler: this delegate is destroyed
+                            // by the removal.
+                            onClicked: statesModel.remove(index)
                         }
                     }
                 }
