@@ -198,9 +198,51 @@ KCM.SimpleKCM {
                 Layout.row: 1
                 Layout.column: 1
                 Label {
-                    text: i18n("Clicking the button cycles to the next state and runs its script. The status script selects a state by printing its name or index, or by exit code: a state with an exit code is selected when a status run ends with that code. A status run that matches nothing selects the default state, which is also shown at startup and restored when a state's script fails.")
+                    text: i18n("Clicking the button cycles to the next state and runs its script.")
                     wrapMode: Text.Wrap
                     Layout.maximumWidth: 520
+                }
+                // Column headers for the state rows; the longer
+                // explanations live in their tooltips.
+                RowLayout {
+                    Layout.fillWidth: true
+                    Label {
+                        text: i18n("Name")
+                        font: Kirigami.Theme.smallFont
+                        Layout.preferredWidth: 110
+                    }
+                    Label {
+                        text: i18n("Script")
+                        font: Kirigami.Theme.smallFont
+                        Layout.minimumWidth: 220
+                        Layout.fillWidth: true
+                    }
+                    Label {
+                        text: i18n("Exit code")
+                        font: Kirigami.Theme.smallFont
+                        Layout.preferredWidth: 64
+                        hoverEnabled: true
+                        ToolTip.text: i18n("A status run ending with this code selects the state")
+                        ToolTip.visible: hovered
+                    }
+                    Label {
+                        text: i18n("Icon")
+                        font: Kirigami.Theme.smallFont
+                        Layout.preferredWidth: Kirigami.Units.iconSizes.medium + Kirigami.Units.smallSpacing * 4
+                    }
+                    Label {
+                        text: i18n("Run when clicked")
+                        font: Kirigami.Theme.smallFont
+                        Layout.preferredWidth: 120
+                    }
+                    Label {
+                        text: i18n("Default")
+                        font: Kirigami.Theme.smallFont
+                        Layout.preferredWidth: 52
+                        hoverEnabled: true
+                        ToolTip.text: i18n("Shown at startup, selected when a status run matches nothing, restored when a state's script fails")
+                        ToolTip.visible: hovered
+                    }
                 }
                 Repeater {
                     model: statesModel
@@ -231,8 +273,6 @@ KCM.SimpleKCM {
                             placeholderText: i18n("Code")
                             Layout.preferredWidth: 64
                             inputMethodHints: Qt.ImhDigitsOnly
-                            ToolTip.text: i18n("Status script exit code that selects this state")
-                            ToolTip.visible: hovered
                             onTextEdited: {
                                 statesModel.setProperty(index, "exitCode", text);
                                 configPage.serializeStates();
@@ -248,7 +288,7 @@ KCM.SimpleKCM {
                         }
                         CheckBox {
                             checked: model.enabled
-                            text: i18n("Run when clicked")
+                            Layout.preferredWidth: 120
                             onToggled: {
                                 statesModel.setProperty(index, "enabled", checked);
                                 configPage.serializeStates();
@@ -257,8 +297,7 @@ KCM.SimpleKCM {
                         RadioButton {
                             checked: model.isDefault
                             ButtonGroup.group: defaultStateGroup
-                            ToolTip.text: i18n("Default state: shown at startup, selected when a status run matches nothing, restored when a state's script fails")
-                            ToolTip.visible: hovered
+                            Layout.preferredWidth: 52
                             onToggled: {
                                 if (checked) {
                                     configPage.setDefaultState(index);
@@ -268,6 +307,8 @@ KCM.SimpleKCM {
                         Button {
                             icon.name: "list-remove"
                             enabled: statesModel.count > 1
+                            ToolTip.text: i18n("Remove this state")
+                            ToolTip.visible: hovered
                             // Serialising is left to the page-level
                             // count handler: this delegate is destroyed
                             // by the removal.
@@ -312,6 +353,8 @@ KCM.SimpleKCM {
                 id: checkStatusScriptText
                 Layout.minimumWidth: 300
                 enabled: (statusScriptEnabledBox.checked || runStatusScriptBox.checked)
+                ToolTip.text: i18n("Selects a state by printing its name or index, or by exiting with a state's exit code; a run that matches nothing selects the default state")
+                ToolTip.visible: hovered
             }
 
             Label {
