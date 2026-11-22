@@ -305,7 +305,19 @@ PlasmoidItem {
     }
 
     compactRepresentation: buttonComponent
-    fullRepresentation: buttonComponent
+
+    // The full representation must be a different component object
+    // than the compact one. libplasma decides whether an applet
+    // should be expanded by comparing the preferred representation
+    // with the full one; identical components read as "preferred is
+    // the full view", which keeps a panel applet permanently
+    // expanded and disables its hover tooltip.
+    fullRepresentation: Component {
+        Loader {
+            anchors.fill: parent
+            sourceComponent: buttonComponent
+        }
+    }
 
     Timer {
         id: checkStatusTimer
