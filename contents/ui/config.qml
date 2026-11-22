@@ -221,7 +221,6 @@ KCM.SimpleKCM {
                         text: i18n("Exit code")
                         font: Kirigami.Theme.smallFont
                         Layout.preferredWidth: 64
-                        hoverEnabled: true
                         ToolTip.text: i18n("A status run ending with this code selects the state")
                         ToolTip.visible: hovered
                     }
@@ -239,7 +238,6 @@ KCM.SimpleKCM {
                         text: i18n("Default")
                         font: Kirigami.Theme.smallFont
                         Layout.preferredWidth: 52
-                        hoverEnabled: true
                         ToolTip.text: i18n("Shown at startup, selected when a status run matches nothing, restored when a state's script fails")
                         ToolTip.visible: hovered
                     }
@@ -273,6 +271,8 @@ KCM.SimpleKCM {
                             placeholderText: i18n("Code")
                             Layout.preferredWidth: 64
                             inputMethodHints: Qt.ImhDigitsOnly
+                            ToolTip.text: i18n("A status run ending with this code selects the state")
+                            ToolTip.visible: hovered
                             onTextEdited: {
                                 statesModel.setProperty(index, "exitCode", text);
                                 configPage.serializeStates();
@@ -298,6 +298,8 @@ KCM.SimpleKCM {
                             checked: model.isDefault
                             ButtonGroup.group: defaultStateGroup
                             Layout.preferredWidth: 52
+                            ToolTip.text: i18n("Shown at startup, selected when a status run matches nothing, restored when a state's script fails")
+                            ToolTip.visible: hovered
                             onToggled: {
                                 if (checked) {
                                     configPage.setDefaultState(index);
