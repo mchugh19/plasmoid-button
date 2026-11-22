@@ -42,7 +42,9 @@ PlasmoidItem {
     // builds a two-entry list from the legacy on/off settings, so
     // existing configurations keep working unchanged.
     property var states: parseStates(Plasmoid.configuration.states)
-    // Index of the state the button currently shows
+    // Index of the state the button currently shows; set to the
+    // default state on completion (a binding here would re-evaluate
+    // whenever states changes and snap the display back to default)
     property int currentState: 0
     // True while the instance still runs on the shipped defaults:
     // no state list stored and the legacy scripts untouched (the
@@ -52,15 +54,12 @@ PlasmoidItem {
     property bool unconfigured: Plasmoid.configuration.states === ""
         && onScript === "sleep 2; exit 0"
         && offScript === "sleep 1; exit 0"
-    // State shown before a button-press script started, restored
-    // when that script fails
-    property int stateBeforeScript: 0
     //When script is running pause status check script
     property bool scriptRunning: false
 
     onStatesChanged: {
         if (currentState >= states.length) {
-            currentState = 0;
+            currentState = defaultStateIndex();
         }
     }
     
@@ -85,6 +84,7 @@ PlasmoidItem {
     }
     
     Component.onCompleted: {
+        currentState = defaultStateIndex();
         if (runStatusScriptOnStart) {
             checkStatus()
             if (statusScriptEnabled) {
@@ -99,28 +99,39 @@ PlasmoidItem {
         connectedSources: []
         onNewData: function(sourceName, data) {
             if (!scriptRunning) {
-                // Behaviour for the status script: printing a state
-                // name or index on stdout selects that state. With no
-                // usable output, fall back to the legacy contract:
-                // exit code 0 selects the second state (on), any
-                // other exit code the first (off).
+                // Behaviour for the status script: its result selects
+                // the desired state, resolved in a fixed order. A
+                // state name printed on stdout wins, then an index
+                // printed on stdout, then a state whose declared exit
+                // code matches the run's exit code, and finally the
+                // default state. The legacy contract is the special
+                // case: On declares exit code 0 and Off is the
+                // default, so exit 0 selects On and any other exit
+                // code selects Off.
                 const out = (data['stdout'] || '').trim();
-                const named = states.findIndex(state => state.name === out);
-                const numbered = parseInt(out, 10);
-                if (named >= 0) {
-                    currentState = named;
-                } else if (out !== '' && !isNaN(numbered) && numbered >= 0 && numbered < states.length) {
-                    currentState = numbered;
-                } else {
-                    currentState = data['exit code'] == 0 && states.length > 1 ? 1 : 0;
+                let target = -1;
+                if (out !== '') {
+                    target = states.findIndex(state => state.name === out);
+                    if (target < 0) {
+                        const numbered = parseInt(out, 10);
+                        if (!isNaN(numbered) && numbered >= 0 && numbered < states.length) {
+                            target = numbered;
+                        }
+                    }
                 }
+                if (target < 0) {
+                    const code = data['exit code'];
+                    target = states.findIndex(state => state.exitCode !== null && state.exitCode === code);
+                }
+                currentState = target >= 0 ? target : defaultStateIndex();
             } else {
                 // Behaviour for button-press scripts: a failed run
-                // restores the state shown before it. (The two-state
-                // code only reverted a failed on-script; reverting any
-                // failed run is the consistent generalisation.)
+                // falls back to the default state. (With the legacy
+                // pair the default is Off, which reproduces the
+                // original behaviour exactly: a failed on-script
+                // returns to Off, a failed off-script stays at Off.)
                 if (data['exit code'] != 0) {
-                    currentState = stateBeforeScript;
+                    currentState = defaultStateIndex();
                 }
                 scriptRunning = false;
 
@@ -142,22 +153,41 @@ PlasmoidItem {
             try {
                 const parsed = JSON.parse(raw);
                 if (Array.isArray(parsed) && parsed.length > 0) {
-                    return parsed;
+                    // Normalise entries so exitCode and default are
+                    // always present with the expected types, even
+                    // for lists stored before they existed.
+                    return parsed.map(state => ({
+                        name: state.name || "",
+                        script: state.script || "",
+                        icon: state.icon || "dialog-ok",
+                        enabled: state.enabled !== false,
+                        exitCode: typeof state.exitCode === "number" ? state.exitCode : null,
+                        default: state.default === true
+                    }));
                 }
             } catch (e) {
                 console.log('Invalid states configuration, using on/off settings: ' + e);
             }
         }
+        // The legacy pair: On answers to exit code 0, Off is the
+        // default, which together reproduce the original status
+        // contract (exit 0 shows On, anything else shows Off).
         return [
-            { name: "Off", script: offScript, icon: Plasmoid.configuration.iconOff, enabled: offScriptEnabled },
-            { name: "On", script: onScript, icon: Plasmoid.configuration.iconOn, enabled: onScriptEnabled }
+            { name: "Off", script: offScript, icon: Plasmoid.configuration.iconOff, enabled: offScriptEnabled, exitCode: null, default: true },
+            { name: "On", script: onScript, icon: Plasmoid.configuration.iconOn, enabled: onScriptEnabled, exitCode: 0, default: false }
         ];
     }
 
+    // Index of the state marked as default, or the first state when
+    // none is marked.
+    function defaultStateIndex() {
+        const found = states.findIndex(state => state.default === true);
+        return found >= 0 ? found : 0;
+    }
+
     // Show a state and run its script. If the script fails, onNewData
-    // restores the state shown before.
+    // falls back to the default state.
     function activateState(index) {
-        stateBeforeScript = currentState;
         currentState = index;
         checkStatusTimer.stop();
         scriptRunning = true;
