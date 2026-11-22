@@ -17,11 +17,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  */
 import QtQuick
-import QtQuick.Layouts
 import QtQuick.Controls
 import org.kde.plasma.plasmoid
-import org.kde.plasma.core as PlasmaCore
-import org.kde.plasma.components as PlasmaComponents
 import org.kde.plasma.plasma5support as Plasma5Support
 import org.kde.kirigami as Kirigami
 
@@ -35,7 +32,6 @@ PlasmoidItem {
     property string checkStatusScript: Plasmoid.configuration.statusScript
     property bool runStatusScriptOnStart: Plasmoid.configuration.runStatusOnStart
     property int statusInterval: Plasmoid.configuration.interval
-    property string commandName: Plasmoid.configuration.commandName
     
     // The states the button cycles through, from the 'states' config
     // entry (a JSON array). When that entry is empty, parseStates()
@@ -214,43 +210,23 @@ PlasmoidItem {
         id: buttonComponent
 
         Item {
-            RowLayout {
+            Kirigami.Icon {
+                id: icon
                 anchors.fill: parent
-                spacing: 0
-                PlasmaComponents.Label {
-                    id: commandNameLabel
-                    // No label, no label item: with an empty label
-                    // the widget is the icon alone.
-                    visible: root.unconfigured || root.commandName !== ""
-                    text: root.unconfigured ? i18n("Configure") : root.commandName
-                }
-                Kirigami.Icon {
-                    id: icon
-                    Layout.fillHeight: true
-                    // Square, sized by the row height but capped:
-                    // in a panel the height is the panel thickness,
-                    // but a desktop tile can be hundreds of pixels
-                    // tall, and an icon that wide makes the content
-                    // broader than the tile so the layout overflows
-                    // past its edge.
-                    Layout.preferredWidth: Math.min(height, Kirigami.Units.iconSizes.huge)
-                    Layout.minimumWidth: Math.min(height, Kirigami.Units.iconSizes.huge)
-                    // Qualify with root.: the bare name 'states' inside
-                    // a child item resolves to QQuickItem's built-in
-                    // 'states' property (the item's QML state list,
-                    // normally empty), not to the root's state list,
-                    // so states[currentState] was undefined and the
-                    // binding failed with the source never set.
-                    source: root.unconfigured ? "configure" : root.states[root.currentState].icon
-                    BusyIndicator {
-                        id: busy
-                        anchors.fill: parent
-                        visible: root.scriptRunning
-                    }
+                // Qualify with root.: the bare name 'states' inside
+                // a child item resolves to QQuickItem's built-in
+                // 'states' property (the item's QML state list,
+                // normally empty), not to the root's state list,
+                // so states[currentState] was undefined and the
+                // binding failed with the source never set.
+                source: root.unconfigured ? "configure" : root.states[root.currentState].icon
+                BusyIndicator {
+                    id: busy
+                    anchors.fill: parent
+                    visible: root.scriptRunning
                 }
             }
-            // The whole widget is the button, not just the icon:
-            // the mouse area covers the label as well.
+            // The whole widget is the button.
             MouseArea {
                 id: mouseArea
                 anchors.fill: parent

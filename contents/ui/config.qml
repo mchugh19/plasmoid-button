@@ -32,7 +32,6 @@ KCM.SimpleKCM {
     property alias cfg_updateIntervalUnit: updateIntervalUnitSpinBox.value
     property string cfg_iconOn: plasmoid.configuration.iconOn
     property string cfg_iconOff: plasmoid.configuration.iconOff
-    property alias cfg_commandName: commandNameText.text
 
     // Explanatory help for the state columns, shown as tooltips on
     // both the column headers and the row controls so every column
@@ -193,26 +192,15 @@ KCM.SimpleKCM {
     Kirigami.FormLayout {
         GridLayout {
             columns: 2
-            Label {
-                Layout.row: 0
-                Layout.column: 0
-                text: i18n("Plasmoid label")
-            }
-            TextField {
-                Layout.row: 0
-                Layout.column: 1
-                id: commandNameText
-                Layout.minimumWidth: 300
-            }
 
             Label {
-                Layout.row: 1
+                Layout.row: 0
                 Layout.column: 0
                 text: i18n("States")
                 font.weight: Font.Bold
             }
             ColumnLayout {
-                Layout.row: 1
+                Layout.row: 0
                 Layout.column: 1
                 Label {
                     text: i18n("Clicking the button cycles to the next state and runs its script.")
@@ -386,13 +374,13 @@ KCM.SimpleKCM {
             }
 
             Label {
-                Layout.row: 2
+                Layout.row: 1
                 Layout.column: 0
                 text: i18n("Status script")
                 font.weight: Font.Bold
             }
             CheckBox {
-                Layout.row: 2
+                Layout.row: 1
                 Layout.column: 1
                 id: statusScriptEnabledBox
                 checked: checkStatusScriptText.activeFocus || checkStatusScriptText.length
@@ -402,12 +390,12 @@ KCM.SimpleKCM {
             }
 
             Label {
-                Layout.row: 3
+                Layout.row: 2
                 Layout.column: 0
                 text: i18n("Script")
             }
             TextField {
-                Layout.row: 3
+                Layout.row: 2
                 Layout.column: 1
                 id: checkStatusScriptText
                 Layout.minimumWidth: 300
@@ -417,13 +405,13 @@ KCM.SimpleKCM {
             }
 
             Label {
-                Layout.row: 4
+                Layout.row: 3
                 Layout.column: 0
                 text: i18n("Run every")
             }
             GridLayout {
                 columns: 2
-                Layout.row: 4
+                Layout.row: 3
                 Layout.column: 1
                 SpinBox {
                     Layout.row: 0
@@ -463,7 +451,7 @@ KCM.SimpleKCM {
                 }
             }
             CheckBox {
-                Layout.row: 5
+                Layout.row: 4
                 Layout.column: 1
                 id: runStatusScriptBox
                 text: i18n("Check status on startup")
