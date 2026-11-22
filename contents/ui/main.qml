@@ -187,12 +187,20 @@ PlasmoidItem {
             RowLayout {
                 anchors.fill: parent
                 spacing: 0
+                // A flexible spacer on both sides keeps the
+                // label-plus-icon group centred when the shell gives
+                // the widget more room than its content needs (the
+                // desktop full view). With a single spacer after the
+                // label, any extra width landed between the label and
+                // the icon and pushed the icon to the far edge. In a
+                // panel, where the widget is sized to its content,
+                // both spacers collapse to zero.
+                Item {
+                    Layout.fillWidth: true
+                }
                 PlasmaComponents.Label {
                     id: commandNameLabel
                     text: root.unconfigured ? i18n("Configure") : root.commandName
-                }
-                Item {
-                    Layout.fillWidth: true
                 }
                 Kirigami.Icon {
                     id: icon
@@ -218,6 +226,9 @@ PlasmoidItem {
                         anchors.fill: parent
                         visible: root.scriptRunning
                     }
+                }
+                Item {
+                    Layout.fillWidth: true
                 }
             }
             // The whole widget is the button, not just the icon:
