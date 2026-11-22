@@ -37,10 +37,24 @@ PlasmoidItem {
     property int statusInterval: Plasmoid.configuration.interval
     property string commandName: Plasmoid.configuration.commandName
     
-    //Store state of the button
-    property bool checked: false
+    // The states the button cycles through, from the 'states' config
+    // entry (a JSON array). When that entry is empty, parseStates()
+    // builds a two-entry list from the legacy on/off settings, so
+    // existing configurations keep working unchanged.
+    property var states: parseStates(Plasmoid.configuration.states)
+    // Index of the state the button currently shows
+    property int currentState: 0
+    // State shown before a button-press script started, restored
+    // when that script fails
+    property int stateBeforeScript: 0
     //When script is running pause status check script
     property bool scriptRunning: false
+
+    onStatesChanged: {
+        if (currentState >= states.length) {
+            currentState = 0;
+        }
+    }
     
     preferredRepresentation: compactRepresentation
     
@@ -72,25 +86,36 @@ PlasmoidItem {
         connectedSources: []
         onNewData: function(sourceName, data) {
             if (!scriptRunning) {
-                //Behaviour for status script:
-                if (data['exit code'] != 0) {
-                    checked = false;
+                // Behaviour for the status script: printing a state
+                // name or index on stdout selects that state. With no
+                // usable output, fall back to the legacy contract:
+                // exit code 0 selects the second state (on), any
+                // other exit code the first (off).
+                const out = (data['stdout'] || '').trim();
+                const named = states.findIndex(state => state.name === out);
+                const numbered = parseInt(out, 10);
+                if (named >= 0) {
+                    currentState = named;
+                } else if (out !== '' && !isNaN(numbered) && numbered >= 0 && numbered < states.length) {
+                    currentState = numbered;
                 } else {
-                    checked = true;
+                    currentState = data['exit code'] == 0 && states.length > 1 ? 1 : 0;
                 }
             } else {
-                //behaviour for button pressed scripts
-                if (checked && data['exit code'] != 0) {
-                    checked = false;
+                // Behaviour for button-press scripts: a failed run
+                // restores the state shown before it. (The two-state
+                // code only reverted a failed on-script; reverting any
+                // failed run is the consistent generalisation.)
+                if (data['exit code'] != 0) {
+                    currentState = stateBeforeScript;
                 }
                 scriptRunning = false;
-                
+
                 if (statusScriptEnabled) {
                     checkStatusTimer.restart();
                 }
-                
             }
-            
+
             disconnectSource(sourceName)
         }
         
@@ -99,14 +124,42 @@ PlasmoidItem {
         }
     }
     
-    function toggleAction() {
+    function parseStates(raw) {
+        if (raw) {
+            try {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed;
+                }
+            } catch (e) {
+                console.log('Invalid states configuration, using on/off settings: ' + e);
+            }
+        }
+        return [
+            { name: "Off", script: offScript, icon: Plasmoid.configuration.iconOff, enabled: offScriptEnabled },
+            { name: "On", script: onScript, icon: Plasmoid.configuration.iconOn, enabled: onScriptEnabled }
+        ];
+    }
+
+    // Show a state and run its script. If the script fails, onNewData
+    // restores the state shown before.
+    function activateState(index) {
+        stateBeforeScript = currentState;
+        currentState = index;
         checkStatusTimer.stop();
         scriptRunning = true;
-        
-        if (checked) {
-            executable.exec(onScript);
-        } else {
-            executable.exec(offScript);
+        executable.exec(states[index].script);
+    }
+
+    // Advance to the next state whose script is enabled, wrapping
+    // around. Does nothing when no other state is enabled.
+    function activateNext() {
+        for (let step = 1; step < states.length; ++step) {
+            const next = (currentState + step) % states.length;
+            if (states[next].enabled) {
+                activateState(next);
+                return;
+            }
         }
     }
     
@@ -131,17 +184,12 @@ PlasmoidItem {
                 id: icon
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                source: checked ? plasmoid.configuration.iconOn : plasmoid.configuration.iconOff
+                source: states[currentState].icon
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
                     hoverEnabled: true
-                    onClicked: {
-                        if ((checked && offScriptEnabled) || (!checked && onScriptEnabled)) {
-                            checked = checked == true ? false : true
-                            toggleAction();
-                        }
-                    }
+                    onClicked: activateNext()
                 }
                 BusyIndicator {
                     id: busy
