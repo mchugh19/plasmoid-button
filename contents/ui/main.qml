@@ -197,7 +197,15 @@ PlasmoidItem {
                 Kirigami.Icon {
                     id: icon
                     Layout.fillHeight: true
-                    Layout.fillWidth: true
+                    // Square, sized by the row height: with fillWidth
+                    // the layout only grants the icon its implicit
+                    // width, so in the large full (desktop) view the
+                    // glyph stays small in the middle of the tile.
+                    // Sizing by height lets it scale with the tile
+                    // there; in a panel the height is the panel
+                    // thickness either way.
+                    Layout.preferredWidth: height
+                    Layout.minimumWidth: height
                     // Qualify with root.: the bare name 'states' inside
                     // a child item resolves to QQuickItem's built-in
                     // 'states' property (the item's QML state list,
