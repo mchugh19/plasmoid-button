@@ -34,6 +34,16 @@ KCM.SimpleKCM {
     property string cfg_iconOff: plasmoid.configuration.iconOff
     property alias cfg_commandName: commandNameText.text
 
+    // Explanatory help for the state columns, shown as tooltips on
+    // both the column headers and the row controls so every column
+    // has it in whichever place the user hovers.
+    property string nameHelp: i18n("Name of the state. The status script can select this state by printing its name.")
+    property string scriptHelp: i18n("Command run when the button cycles to this state.")
+    property string exitCodeHelp: i18n("A status run ending with this code selects the state.")
+    property string iconHelp: i18n("Icon shown for this state. Click to choose a different one.")
+    property string runHelp: i18n("Cycle to this state when the button is clicked and run its script. When unchecked, only the status script can select the state.")
+    property string defaultHelp: i18n("Shown at startup, selected when a status run matches nothing, restored when a state's script fails.")
+
     ListModel {
         id: statesModel
     }
@@ -210,35 +220,43 @@ KCM.SimpleKCM {
                         text: i18n("Name")
                         font: Kirigami.Theme.smallFont
                         Layout.preferredWidth: 110
+                        ToolTip.text: configPage.nameHelp
+                        ToolTip.visible: hovered
                     }
                     Label {
                         text: i18n("Script")
                         font: Kirigami.Theme.smallFont
                         Layout.minimumWidth: 220
                         Layout.fillWidth: true
+                        ToolTip.text: configPage.scriptHelp
+                        ToolTip.visible: hovered
                     }
                     Label {
                         text: i18n("Exit code")
                         font: Kirigami.Theme.smallFont
                         Layout.preferredWidth: 64
-                        ToolTip.text: i18n("A status run ending with this code selects the state")
+                        ToolTip.text: configPage.exitCodeHelp
                         ToolTip.visible: hovered
                     }
                     Label {
                         text: i18n("Icon")
                         font: Kirigami.Theme.smallFont
                         Layout.preferredWidth: Kirigami.Units.iconSizes.medium + Kirigami.Units.smallSpacing * 4
+                        ToolTip.text: configPage.iconHelp
+                        ToolTip.visible: hovered
                     }
                     Label {
                         text: i18n("Run when clicked")
                         font: Kirigami.Theme.smallFont
                         Layout.preferredWidth: 120
+                        ToolTip.text: configPage.runHelp
+                        ToolTip.visible: hovered
                     }
                     Label {
                         text: i18n("Default")
                         font: Kirigami.Theme.smallFont
                         Layout.preferredWidth: 52
-                        ToolTip.text: i18n("Shown at startup, selected when a status run matches nothing, restored when a state's script fails")
+                        ToolTip.text: configPage.defaultHelp
                         ToolTip.visible: hovered
                     }
                 }
@@ -250,6 +268,8 @@ KCM.SimpleKCM {
                             text: model.name
                             placeholderText: i18n("Name")
                             Layout.preferredWidth: 110
+                            ToolTip.text: configPage.nameHelp
+                            ToolTip.visible: hovered
                             onTextEdited: {
                                 statesModel.setProperty(index, "name", text);
                                 configPage.serializeStates();
@@ -261,6 +281,8 @@ KCM.SimpleKCM {
                             Layout.minimumWidth: 220
                             Layout.fillWidth: true
                             enabled: model.enabled
+                            ToolTip.text: configPage.scriptHelp
+                            ToolTip.visible: hovered
                             onTextEdited: {
                                 statesModel.setProperty(index, "script", text);
                                 configPage.serializeStates();
@@ -271,7 +293,7 @@ KCM.SimpleKCM {
                             placeholderText: i18n("Code")
                             Layout.preferredWidth: 64
                             inputMethodHints: Qt.ImhDigitsOnly
-                            ToolTip.text: i18n("A status run ending with this code selects the state")
+                            ToolTip.text: configPage.exitCodeHelp
                             ToolTip.visible: hovered
                             onTextEdited: {
                                 statesModel.setProperty(index, "exitCode", text);
@@ -281,6 +303,8 @@ KCM.SimpleKCM {
                         IconPicker {
                             currentIcon: model.icon
                             defaultIcon: "dialog-ok"
+                            ToolTip.text: configPage.iconHelp
+                            ToolTip.visible: hovered
                             onIconSelected: function(iconName) {
                                 statesModel.setProperty(index, "icon", iconName);
                                 configPage.serializeStates();
@@ -289,6 +313,8 @@ KCM.SimpleKCM {
                         CheckBox {
                             checked: model.enabled
                             Layout.preferredWidth: 120
+                            ToolTip.text: configPage.runHelp
+                            ToolTip.visible: hovered
                             onToggled: {
                                 statesModel.setProperty(index, "enabled", checked);
                                 configPage.serializeStates();
@@ -298,7 +324,7 @@ KCM.SimpleKCM {
                             checked: model.isDefault
                             ButtonGroup.group: defaultStateGroup
                             Layout.preferredWidth: 52
-                            ToolTip.text: i18n("Shown at startup, selected when a status run matches nothing, restored when a state's script fails")
+                            ToolTip.text: configPage.defaultHelp
                             ToolTip.visible: hovered
                             onToggled: {
                                 if (checked) {
