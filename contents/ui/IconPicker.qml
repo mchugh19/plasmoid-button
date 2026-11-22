@@ -33,7 +33,7 @@ Button {
     property string currentIcon
     property string defaultIcon
 
-    signal iconChanged(string iconName)
+    signal iconSelected(string iconName)
 
     Layout.minimumWidth: previewFrame.width + Kirigami.Units.smallSpacing * 2
     Layout.maximumWidth: Layout.minimumWidth
@@ -44,7 +44,7 @@ Button {
         id: iconDialog
         onIconNameChanged: function(iconName) {
             iconPreview.source = iconName
-            iconChanged(iconName)
+            iconSelected(iconName)
         }
     }
 
@@ -69,7 +69,7 @@ Button {
 
     function setDefaultIcon() {
         iconPreview.source = defaultIcon
-        iconChanged(defaultIcon)
+        iconSelected(defaultIcon)
     }
 
     // QQC Menu can only be opened at cursor position, not a random one
