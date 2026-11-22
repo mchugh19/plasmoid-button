@@ -37,7 +37,7 @@ KCM.SimpleKCM {
     // both the column headers and the row controls so every column
     // has it in whichever place the user hovers.
     property string nameHelp: i18n("Name of the state. The status script can select this state by printing its name.")
-    property string scriptHelp: i18n("Command run when the button cycles to this state.")
+    property string scriptHelp: i18n("Command run when the button cycles to this state. It can set the hover tooltip by printing {PlasmoidTooltipHeadStart}...{PlasmoidTooltipHeadEnd} or {PlasmoidTooltipBodyStart}...{PlasmoidTooltipBodyEnd}.")
     property string exitCodeHelp: i18n("A status run ending with this code selects the state.")
     property string iconHelp: i18n("Icon shown for this state. Click to choose a different one.")
     property string runHelp: i18n("Cycle to this state when the button is clicked and run its script. When unchecked, only the status script can select the state.")
@@ -400,7 +400,7 @@ KCM.SimpleKCM {
                 id: checkStatusScriptText
                 Layout.minimumWidth: 300
                 enabled: (statusScriptEnabledBox.checked || runStatusScriptBox.checked)
-                ToolTip.text: i18n("Selects a state by printing its name or index, or by exiting with a state's exit code; a run that matches nothing selects the default state")
+                ToolTip.text: i18n("Selects a state by printing its name or index, or by exiting with a state's exit code; a run that matches nothing selects the default state. Any script can also set the hover tooltip by printing {PlasmoidTooltipHeadStart}...{PlasmoidTooltipHeadEnd} or {PlasmoidTooltipBodyStart}...{PlasmoidTooltipBodyEnd}")
                 ToolTip.visible: hovered
             }
 

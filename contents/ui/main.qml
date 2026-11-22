@@ -52,6 +52,20 @@ PlasmoidItem {
         && offScript === "sleep 1; exit 0"
     //When script is running pause status check script
     property bool scriptRunning: false
+    // Tooltip text set by scripts. A script prints
+    // {PlasmoidTooltipHeadStart}...{PlasmoidTooltipHeadEnd} and/or
+    // {PlasmoidTooltipBodyStart}...{PlasmoidTooltipBodyEnd} on stdout
+    // (the Scriptinator tag names) and the hover popup shows them
+    // until another script run replaces them. Empty means unset.
+    property string tooltipHead: ""
+    property string tooltipBody: ""
+
+    Plasmoid.toolTipMainText: root.tooltipHead !== ""
+        ? root.tooltipHead
+        : (root.unconfigured || root.states[root.currentState].name === ""
+            ? Plasmoid.title
+            : root.states[root.currentState].name)
+    Plasmoid.toolTipSubText: root.tooltipBody
 
     onStatesChanged: {
         if (currentState >= states.length) {
@@ -94,6 +108,24 @@ PlasmoidItem {
         engine: "executable"
         connectedSources: []
         onNewData: function(sourceName, data) {
+            // Scripts can set the hover tooltip by printing tagged
+            // segments on stdout (see extractTagged). The segments
+            // are stripped before the status parsing below, so one
+            // run can print a state name and a tooltip together.
+            const rawOut = data['stdout'] || '';
+            const head = extractTagged(rawOut, '{PlasmoidTooltipHeadStart}', '{PlasmoidTooltipHeadEnd}');
+            if (head !== null) {
+                tooltipHead = head;
+            }
+            let body = extractTagged(rawOut, '{PlasmoidTooltipBodyStart}', '{PlasmoidTooltipBodyEnd}');
+            if (body === null) {
+                body = extractTagged(rawOut, '{PlasmoidTooltipStart}', '{PlasmoidTooltipEnd}');
+            }
+            if (body !== null) {
+                tooltipBody = body;
+            }
+            const out = stripTagged(rawOut).trim();
+
             if (!scriptRunning) {
                 // Behaviour for the status script: its result selects
                 // the desired state, resolved in a fixed order. A
@@ -104,7 +136,6 @@ PlasmoidItem {
                 // case: On declares exit code 0 and Off is the
                 // default, so exit 0 selects On and any other exit
                 // code selects Off.
-                const out = (data['stdout'] || '').trim();
                 let target = -1;
                 if (out !== '') {
                     target = states.findIndex(state => state.name === out);
@@ -144,6 +175,32 @@ PlasmoidItem {
         }
     }
     
+    // The value of the last startTag...endTag segment in text, or
+    // null when there is none. The tag names follow Scriptinator's,
+    // so scripts written for it work here unchanged.
+    function extractTagged(text, startTag, endTag) {
+        const pattern = new RegExp(escapeRegExp(startTag) + '([\\s\\S]*?)' + escapeRegExp(endTag), 'g');
+        let match;
+        let last = null;
+        while ((match = pattern.exec(text)) !== null) {
+            last = match[1];
+        }
+        return last;
+    }
+
+    // text with every tooltip segment removed, so what remains can
+    // still be parsed as a state name or index.
+    function stripTagged(text) {
+        return text
+            .replace(/\{PlasmoidTooltipHeadStart\}[\s\S]*?\{PlasmoidTooltipHeadEnd\}/g, '')
+            .replace(/\{PlasmoidTooltipBodyStart\}[\s\S]*?\{PlasmoidTooltipBodyEnd\}/g, '')
+            .replace(/\{PlasmoidTooltipStart\}[\s\S]*?\{PlasmoidTooltipEnd\}/g, '');
+    }
+
+    function escapeRegExp(text) {
+        return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
     function parseStates(raw) {
         if (raw) {
             try {
