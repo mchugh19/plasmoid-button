@@ -183,37 +183,41 @@ PlasmoidItem {
     Component {
         id: buttonComponent
 
-        RowLayout {
-            id: mainItem
-            spacing: 0
-            PlasmaComponents.Label {
-                id: commandNameLabel
-                text: unconfigured ? i18n("Configure") : commandName
-            }
-            Item {
-                Layout.fillWidth: true
-            }
-            Kirigami.Icon {
-                id: icon
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                source: unconfigured ? "configure" : states[currentState].icon
-                MouseArea {
-                    id: mouseArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: {
-                        if (unconfigured) {
-                            Plasmoid.internalAction("configure").trigger();
-                        } else {
-                            activateNext();
-                        }
+        Item {
+            RowLayout {
+                anchors.fill: parent
+                spacing: 0
+                PlasmaComponents.Label {
+                    id: commandNameLabel
+                    text: unconfigured ? i18n("Configure") : commandName
+                }
+                Item {
+                    Layout.fillWidth: true
+                }
+                Kirigami.Icon {
+                    id: icon
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    source: unconfigured ? "configure" : states[currentState].icon
+                    BusyIndicator {
+                        id: busy
+                        anchors.fill: parent
+                        visible: scriptRunning
                     }
                 }
-                BusyIndicator {
-                    id: busy
-                    anchors.fill:parent
-                    visible: scriptRunning
+            }
+            // The whole widget is the button, not just the icon:
+            // the mouse area covers the label as well.
+            MouseArea {
+                id: mouseArea
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: {
+                    if (unconfigured) {
+                        Plasmoid.internalAction("configure").trigger();
+                    } else {
+                        activateNext();
+                    }
                 }
             }
         }
