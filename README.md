@@ -46,7 +46,9 @@ The button's states are a list, edited in the settings. Each state has:
 
 Clicking the button (or pressing its assigned keyboard shortcut)
 advances to the next "Run when clicked" state and runs that state's
-script. While a script runs, the button shows a busy indicator. If the
+script. While a script runs, the button shows a busy indicator; this
+can be turned off in the settings, which avoids a flash of it for
+fast commands. If the
 script exits with a non-zero code, the button falls back to the
 default state when the script finishes.
 
