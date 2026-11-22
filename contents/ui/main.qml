@@ -57,6 +57,11 @@ PlasmoidItem {
     }
     
     preferredRepresentation: compactRepresentation
+
+    // A global shortcut assigned to the widget activates it:
+    // treat activation as a click and cycle to the next state.
+    // (Feature from sh033's fork, adapted to the state list.)
+    Plasmoid.onActivated: activateNext()
     
     onStatusIntervalChanged: {
         console.log('* Interval changed: ' + statusInterval);
