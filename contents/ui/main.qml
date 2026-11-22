@@ -292,7 +292,6 @@ PlasmoidItem {
             MouseArea {
                 id: mouseArea
                 anchors.fill: parent
-                hoverEnabled: true
                 onClicked: {
                     if (root.unconfigured) {
                         Plasmoid.internalAction("configure").trigger();
