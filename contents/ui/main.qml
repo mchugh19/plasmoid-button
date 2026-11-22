@@ -32,6 +32,7 @@ PlasmoidItem {
     property string checkStatusScript: Plasmoid.configuration.statusScript
     property bool runStatusScriptOnStart: Plasmoid.configuration.runStatusOnStart
     property int statusInterval: Plasmoid.configuration.interval
+    property bool showBusyIndicator: Plasmoid.configuration.showBusyIndicator
     
     // The states the button cycles through, from the 'states' config
     // entry (a JSON array). When that entry is empty, parseStates()
@@ -280,7 +281,7 @@ PlasmoidItem {
                 BusyIndicator {
                     id: busy
                     anchors.fill: parent
-                    visible: root.scriptRunning
+                    visible: root.scriptRunning && root.showBusyIndicator
                 }
             }
             // The whole widget is the button.

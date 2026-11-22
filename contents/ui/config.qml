@@ -28,6 +28,7 @@ KCM.SimpleKCM {
     property alias cfg_statusScriptEnabled: statusScriptEnabledBox.checked
     property alias cfg_statusScript: checkStatusScriptText.text
     property alias cfg_runStatusOnStart: runStatusScriptBox.checked
+    property alias cfg_showBusyIndicator: showBusyBox.checked
     property alias cfg_updateInterval: updateIntervalSpinBox.value
     property alias cfg_updateIntervalUnit: updateIntervalUnitSpinBox.value
     property string cfg_iconOn: plasmoid.configuration.iconOn
@@ -370,6 +371,10 @@ KCM.SimpleKCM {
                         statesModel.append({ name: "", script: "", icon: "dialog-ok", enabled: true, exitCode: "", isDefault: false });
                         configPage.serializeStates();
                     }
+                }
+                CheckBox {
+                    id: showBusyBox
+                    text: i18n("Show a busy indicator while a script runs")
                 }
             }
 

@@ -10,6 +10,10 @@
       <label>States as a JSON array (name, script, icon, enabled per state). Empty = use the legacy on/off settings below.</label>
       <default></default>
     </entry>
+    <entry name="showBusyIndicator" type="Bool">
+      <label>Show a busy indicator while a script runs</label>
+      <default>true</default>
+    </entry>
     <entry name="onScript" type="String">
       <label>Script to execute when toggled on</label>
       <default>sleep 2; exit 0</default>
