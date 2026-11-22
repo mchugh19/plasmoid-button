@@ -48,15 +48,6 @@ Button {
         }
     }
 
-    // just to provide some visual feedback, cannot have checked without checkable enabled
-    // checkable: true
-    // onClicked: {
-    //     checked = Qt.binding(function() { // never actually allow it being checked
-    //         return iconMenu.status === PlasmaComponents.DialogStatus.Open
-    //     })
-    //
-    //     iconMenu.open(0, height)
-    // }
     onPressed: iconMenu.opened ? iconMenu.close() : iconMenu.open()
 
     KSvg.FrameSvgItem {
