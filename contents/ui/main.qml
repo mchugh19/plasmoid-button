@@ -189,27 +189,26 @@ PlasmoidItem {
                 spacing: 0
                 PlasmaComponents.Label {
                     id: commandNameLabel
-                    text: unconfigured ? i18n("Configure") : commandName
+                    text: root.unconfigured ? i18n("Configure") : root.commandName
                 }
                 Item {
                     Layout.fillWidth: true
                 }
                 Kirigami.Icon {
                     id: icon
-                    // Explicit square size from the panel height.
-                    // With only fillWidth/fillHeight, Kirigami.Icon
-                    // paints nothing in a panel: it sizes its glyph
-                    // from its implicit size, which a layout does not
-                    // provide. (The config dialog's IconPicker works
-                    // because it sets an explicit width and height.)
                     Layout.fillHeight: true
-                    Layout.preferredWidth: height
-                    Layout.minimumWidth: height
-                    source: unconfigured ? "configure" : states[currentState].icon
+                    Layout.fillWidth: true
+                    // Qualify with root.: the bare name 'states' inside
+                    // a child item resolves to QQuickItem's built-in
+                    // 'states' property (the item's QML state list,
+                    // normally empty), not to the root's state list,
+                    // so states[currentState] was undefined and the
+                    // binding failed with the source never set.
+                    source: root.unconfigured ? "configure" : root.states[root.currentState].icon
                     BusyIndicator {
                         id: busy
                         anchors.fill: parent
-                        visible: scriptRunning
+                        visible: root.scriptRunning
                     }
                 }
             }
@@ -220,10 +219,10 @@ PlasmoidItem {
                 anchors.fill: parent
                 hoverEnabled: true
                 onClicked: {
-                    if (unconfigured) {
+                    if (root.unconfigured) {
                         Plasmoid.internalAction("configure").trigger();
                     } else {
-                        activateNext();
+                        root.activateNext();
                     }
                 }
             }

@@ -146,7 +146,7 @@ KCM.SimpleKCM {
                             text: model.name
                             placeholderText: i18n("Name")
                             Layout.preferredWidth: 110
-                            onTextChanged: {
+                            onTextEdited: {
                                 statesModel.setProperty(index, "name", text);
                                 configPage.serializeStates();
                             }
@@ -157,7 +157,7 @@ KCM.SimpleKCM {
                             Layout.minimumWidth: 220
                             Layout.fillWidth: true
                             enabled: model.enabled
-                            onTextChanged: {
+                            onTextEdited: {
                                 statesModel.setProperty(index, "script", text);
                                 configPage.serializeStates();
                             }
@@ -165,7 +165,7 @@ KCM.SimpleKCM {
                         IconPicker {
                             currentIcon: model.icon
                             defaultIcon: "dialog-ok"
-                            onIconChanged: function(iconName) {
+                            onIconSelected: function(iconName) {
                                 statesModel.setProperty(index, "icon", iconName);
                                 configPage.serializeStates();
                             }
