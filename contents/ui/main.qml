@@ -114,41 +114,47 @@ PlasmoidItem {
         executable.exec(checkStatusScript);
     }
     
-    fullRepresentation: Item {}
+    Component {
+        id: buttonComponent
 
-    compactRepresentation: RowLayout {
-        id: mainItem
-        spacing: 0
-        PlasmaComponents.Label {
-            id: commandNameLabel
-            text: commandName
-        }
-        Item {
-            Layout.fillWidth: true
-        }
-        Kirigami.Icon {
-            id: icon
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            source: checked ? plasmoid.configuration.iconOn : plasmoid.configuration.iconOff
-            MouseArea {
-                id: mouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                onClicked: {
-                    if ((checked && offScriptEnabled) || (!checked && onScriptEnabled)) {
-                        checked = checked == true ? false : true
-                        toggleAction();
+        RowLayout {
+            id: mainItem
+            spacing: 0
+            PlasmaComponents.Label {
+                id: commandNameLabel
+                text: commandName
+            }
+            Item {
+                Layout.fillWidth: true
+            }
+            Kirigami.Icon {
+                id: icon
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+                source: checked ? plasmoid.configuration.iconOn : plasmoid.configuration.iconOff
+                MouseArea {
+                    id: mouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: {
+                        if ((checked && offScriptEnabled) || (!checked && onScriptEnabled)) {
+                            checked = checked == true ? false : true
+                            toggleAction();
+                        }
                     }
                 }
-            }
-            BusyIndicator {
-                id: busy
-                anchors.fill:parent
-                visible: scriptRunning
+                BusyIndicator {
+                    id: busy
+                    anchors.fill:parent
+                    visible: scriptRunning
+                }
             }
         }
     }
+
+    compactRepresentation: buttonComponent
+    fullRepresentation: buttonComponent
+
     Timer {
         id: checkStatusTimer
         interval: statusInterval
