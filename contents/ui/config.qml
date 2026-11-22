@@ -38,6 +38,13 @@ KCM.SimpleKCM {
         id: statesModel
     }
 
+    // One shared group for the per-row default radio buttons, so
+    // checking one unchecks the others at the control level too
+    // (a click breaks the checked binding on that row's button).
+    ButtonGroup {
+        id: defaultStateGroup
+    }
+
     // Serialise on row add/remove from here, in the page's context.
     // The remove button cannot do it itself: removing its row
     // destroys its own delegate, and the rest of its click handler
@@ -48,15 +55,50 @@ KCM.SimpleKCM {
     Connections {
         target: statesModel
         function onCountChanged() {
+            configPage.normalizeDefault();
             configPage.serializeStates();
         }
+    }
+
+    // Keep exactly one default state: the first one marked wins,
+    // and when none is marked (the marked row was removed, or a
+    // stored list predates the flag) the first row becomes it.
+    function normalizeDefault() {
+        let seen = false;
+        for (let i = 0; i < statesModel.count; ++i) {
+            if (statesModel.get(i).isDefault === true) {
+                if (seen) {
+                    statesModel.setProperty(i, "isDefault", false);
+                } else {
+                    seen = true;
+                }
+            }
+        }
+        if (!seen && statesModel.count > 0) {
+            statesModel.setProperty(0, "isDefault", true);
+        }
+    }
+
+    function setDefaultState(row) {
+        for (let i = 0; i < statesModel.count; ++i) {
+            statesModel.setProperty(i, "isDefault", i === row);
+        }
+        serializeStates();
     }
 
     function statesToJson() {
         const arr = [];
         for (let i = 0; i < statesModel.count; ++i) {
             const state = statesModel.get(i);
-            arr.push({ name: state.name, script: state.script, icon: state.icon, enabled: state.enabled });
+            const code = parseInt(state.exitCode, 10);
+            arr.push({
+                name: state.name,
+                script: state.script,
+                icon: state.icon,
+                enabled: state.enabled,
+                exitCode: isNaN(code) ? null : code,
+                default: state.isDefault === true
+            });
         }
         return JSON.stringify(arr);
     }
@@ -81,23 +123,31 @@ KCM.SimpleKCM {
                     name: state.name || "",
                     script: state.script || "",
                     icon: state.icon || "dialog-ok",
-                    enabled: state.enabled !== false
+                    enabled: state.enabled !== false,
+                    exitCode: typeof state.exitCode === "number" ? String(state.exitCode) : "",
+                    isDefault: state.default === true
                 });
             }
         } else {
             // No state list stored yet: seed it from the legacy
-            // two-state on/off settings.
+            // two-state on/off settings. On answers to exit code 0
+            // and Off is the default, matching the original status
+            // contract.
             statesModel.append({
                 name: "Off",
                 script: plasmoid.configuration.offScript,
                 icon: cfg_iconOff,
-                enabled: plasmoid.configuration.offScriptEnabled
+                enabled: plasmoid.configuration.offScriptEnabled,
+                exitCode: "",
+                isDefault: true
             });
             statesModel.append({
                 name: "On",
                 script: plasmoid.configuration.onScript,
                 icon: cfg_iconOn,
-                enabled: plasmoid.configuration.onScriptEnabled
+                enabled: plasmoid.configuration.onScriptEnabled,
+                exitCode: "0",
+                isDefault: false
             });
         }
     }
@@ -148,7 +198,7 @@ KCM.SimpleKCM {
                 Layout.row: 1
                 Layout.column: 1
                 Label {
-                    text: i18n("Clicking the button cycles to the next state and runs its script. The status script can print a state name or index to select a state directly.")
+                    text: i18n("Clicking the button cycles to the next state and runs its script. The status script selects a state by printing its name or index, or by exit code: a state with an exit code is selected when a status run ends with that code. A status run that matches nothing selects the default state, which is also shown at startup and restored when a state's script fails.")
                     wrapMode: Text.Wrap
                     Layout.maximumWidth: 520
                 }
@@ -176,6 +226,18 @@ KCM.SimpleKCM {
                                 configPage.serializeStates();
                             }
                         }
+                        TextField {
+                            text: model.exitCode
+                            placeholderText: i18n("Code")
+                            Layout.preferredWidth: 64
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            ToolTip.text: i18n("Status script exit code that selects this state")
+                            ToolTip.visible: hovered
+                            onTextEdited: {
+                                statesModel.setProperty(index, "exitCode", text);
+                                configPage.serializeStates();
+                            }
+                        }
                         IconPicker {
                             currentIcon: model.icon
                             defaultIcon: "dialog-ok"
@@ -192,6 +254,17 @@ KCM.SimpleKCM {
                                 configPage.serializeStates();
                             }
                         }
+                        RadioButton {
+                            checked: model.isDefault
+                            ButtonGroup.group: defaultStateGroup
+                            ToolTip.text: i18n("Default state: shown at startup, selected when a status run matches nothing, restored when a state's script fails")
+                            ToolTip.visible: hovered
+                            onToggled: {
+                                if (checked) {
+                                    configPage.setDefaultState(index);
+                                }
+                            }
+                        }
                         Button {
                             icon.name: "list-remove"
                             enabled: statesModel.count > 1
@@ -206,7 +279,7 @@ KCM.SimpleKCM {
                     icon.name: "list-add"
                     text: i18n("Add state")
                     onClicked: {
-                        statesModel.append({ name: "", script: "", icon: "dialog-ok", enabled: true });
+                        statesModel.append({ name: "", script: "", icon: "dialog-ok", enabled: true, exitCode: "", isDefault: false });
                         configPage.serializeStates();
                     }
                 }
