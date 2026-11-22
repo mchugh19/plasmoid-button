@@ -187,33 +187,24 @@ PlasmoidItem {
             RowLayout {
                 anchors.fill: parent
                 spacing: 0
-                // A flexible spacer on both sides keeps the
-                // label-plus-icon group centred when the shell gives
-                // the widget more room than its content needs (the
-                // desktop full view). With a single spacer after the
-                // label, any extra width landed between the label and
-                // the icon and pushed the icon to the far edge. In a
-                // panel, where the widget is sized to its content,
-                // both spacers collapse to zero.
-                Item {
-                    Layout.fillWidth: true
-                }
                 PlasmaComponents.Label {
                     id: commandNameLabel
+                    // No label, no label item: with an empty label
+                    // the widget is the icon alone.
+                    visible: root.unconfigured || root.commandName !== ""
                     text: root.unconfigured ? i18n("Configure") : root.commandName
                 }
                 Kirigami.Icon {
                     id: icon
                     Layout.fillHeight: true
-                    // Square, sized by the row height: with fillWidth
-                    // the layout only grants the icon its implicit
-                    // width, so in the large full (desktop) view the
-                    // glyph stays small in the middle of the tile.
-                    // Sizing by height lets it scale with the tile
-                    // there; in a panel the height is the panel
-                    // thickness either way.
-                    Layout.preferredWidth: height
-                    Layout.minimumWidth: height
+                    // Square, sized by the row height but capped:
+                    // in a panel the height is the panel thickness,
+                    // but a desktop tile can be hundreds of pixels
+                    // tall, and an icon that wide makes the content
+                    // broader than the tile so the layout overflows
+                    // past its edge.
+                    Layout.preferredWidth: Math.min(height, Kirigami.Units.iconSizes.huge)
+                    Layout.minimumWidth: Math.min(height, Kirigami.Units.iconSizes.huge)
                     // Qualify with root.: the bare name 'states' inside
                     // a child item resolves to QQuickItem's built-in
                     // 'states' property (the item's QML state list,
@@ -226,9 +217,6 @@ PlasmoidItem {
                         anchors.fill: parent
                         visible: root.scriptRunning
                     }
-                }
-                Item {
-                    Layout.fillWidth: true
                 }
             }
             // The whole widget is the button, not just the icon:
