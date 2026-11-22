@@ -2,12 +2,12 @@
 
 A Plasma 6 panel button with a configurable list of states. Each state
 has a name, an icon, and a script. The button shows the current state's
-icon (and an optional label), clicking it cycles through the states and
+icon, clicking it cycles through the states and
 runs their scripts, and an optional status script keeps the shown state
 in sync with whatever the button controls or monitors.
 
 A freshly added button that has not been configured yet shows a
-"Configure" placeholder instead of a state; clicking it opens the
+configure gear icon instead of a state; clicking it opens the
 settings.
 
 ## Installation
@@ -69,8 +69,6 @@ Each status run selects the state to show, resolved in this order:
 
 The settings page has:
 
-- **Plasmoid label** — optional text shown next to the icon in the
-  panel. Leave it empty for an icon-only button.
 - **States** — the state list described above, with buttons to add and
   remove states.
 - **Status script** — the script, whether it runs periodically, the
