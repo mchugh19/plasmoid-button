@@ -66,7 +66,7 @@ KCM.SimpleKCM {
                 statesModel.append({
                     name: state.name || "",
                     script: state.script || "",
-                    icon: state.icon || "emblem-checked",
+                    icon: state.icon || "dialog-ok",
                     enabled: state.enabled !== false
                 });
             }
@@ -164,7 +164,7 @@ KCM.SimpleKCM {
                         }
                         IconPicker {
                             currentIcon: model.icon
-                            defaultIcon: "emblem-checked"
+                            defaultIcon: "dialog-ok"
                             onIconChanged: function(iconName) {
                                 statesModel.setProperty(index, "icon", iconName);
                                 configPage.serializeStates();
@@ -192,7 +192,7 @@ KCM.SimpleKCM {
                     icon.name: "list-add"
                     text: i18n("Add state")
                     onClicked: {
-                        statesModel.append({ name: "", script: "", icon: "emblem-checked", enabled: true });
+                        statesModel.append({ name: "", script: "", icon: "dialog-ok", enabled: true });
                         configPage.serializeStates();
                     }
                 }
