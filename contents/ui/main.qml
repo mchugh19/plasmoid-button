@@ -196,8 +196,15 @@ PlasmoidItem {
                 }
                 Kirigami.Icon {
                     id: icon
+                    // Explicit square size from the panel height.
+                    // With only fillWidth/fillHeight, Kirigami.Icon
+                    // paints nothing in a panel: it sizes its glyph
+                    // from its implicit size, which a layout does not
+                    // provide. (The config dialog's IconPicker works
+                    // because it sets an explicit width and height.)
                     Layout.fillHeight: true
-                    Layout.fillWidth: true
+                    Layout.preferredWidth: height
+                    Layout.minimumWidth: height
                     source: unconfigured ? "configure" : states[currentState].icon
                     BusyIndicator {
                         id: busy
