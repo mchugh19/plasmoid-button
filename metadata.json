@@ -22,9 +22,6 @@
         "License": "GPL",
         "Name": "Configurable Button",
         "Name[en_GB]": "Configurable Button",
-        "ServiceTypes": [
-            "Plasma/Applet"
-        ],
         "Version": "0.3.0",
         "Website": "https://github.com/mchugh19/plasmoid-button"
     },
