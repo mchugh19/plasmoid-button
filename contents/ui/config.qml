@@ -220,13 +220,18 @@ KCM.SimpleKCM {
                     Layout.maximumWidth: 520
                 }
                 // Column headers for the state rows; the longer
-                // explanations live in their tooltips.
+                // explanations live in their tooltips. Labels wrap
+                // within their column and bottom-align, so a narrow
+                // column costs header height instead of width.
                 RowLayout {
                     Layout.fillWidth: true
                     Label {
                         text: i18n("Name")
                         font: Kirigami.Theme.smallFont
                         Layout.preferredWidth: 110
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignBottom
+                        wrapMode: Text.Wrap
                         ToolTip.text: configPage.nameHelp
                         ToolTip.visible: hovered
                     }
@@ -235,6 +240,9 @@ KCM.SimpleKCM {
                         font: Kirigami.Theme.smallFont
                         Layout.minimumWidth: 220
                         Layout.fillWidth: true
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignBottom
+                        wrapMode: Text.Wrap
                         ToolTip.text: configPage.scriptHelp
                         ToolTip.visible: hovered
                     }
@@ -242,6 +250,9 @@ KCM.SimpleKCM {
                         text: i18n("Exit code")
                         font: Kirigami.Theme.smallFont
                         Layout.preferredWidth: 64
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignBottom
+                        wrapMode: Text.Wrap
                         ToolTip.text: configPage.exitCodeHelp
                         ToolTip.visible: hovered
                     }
@@ -249,13 +260,19 @@ KCM.SimpleKCM {
                         text: i18n("Icon")
                         font: Kirigami.Theme.smallFont
                         Layout.preferredWidth: Kirigami.Units.iconSizes.medium + Kirigami.Units.smallSpacing * 4
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignBottom
+                        wrapMode: Text.Wrap
                         ToolTip.text: configPage.iconHelp
                         ToolTip.visible: hovered
                     }
                     Label {
                         text: i18n("Run when clicked")
                         font: Kirigami.Theme.smallFont
-                        Layout.preferredWidth: 120
+                        Layout.preferredWidth: 60
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignBottom
+                        wrapMode: Text.Wrap
                         ToolTip.text: configPage.runHelp
                         ToolTip.visible: hovered
                     }
@@ -263,6 +280,9 @@ KCM.SimpleKCM {
                         text: i18n("Default")
                         font: Kirigami.Theme.smallFont
                         Layout.preferredWidth: 52
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignBottom
+                        wrapMode: Text.Wrap
                         ToolTip.text: configPage.defaultHelp
                         ToolTip.visible: hovered
                     }
@@ -322,7 +342,7 @@ KCM.SimpleKCM {
                         }
                         CheckBox {
                             checked: model.enabled
-                            Layout.preferredWidth: 120
+                            Layout.preferredWidth: 60
                             ToolTip.text: configPage.runHelp
                             ToolTip.visible: hovered
                             onToggled: {
