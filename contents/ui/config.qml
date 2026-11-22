@@ -44,6 +44,13 @@ KCM.SimpleKCM {
     property string runHelp: i18n("Cycle to this state when the button is clicked and run its script. When unchecked, only the status script can select the state.")
     property string defaultHelp: i18n("Shown at startup, selected when a status run matches nothing, restored when a state's script fails.")
 
+    // Width of the remove-button column, set explicitly on the row
+    // buttons and reserved as an empty cell in the header row. The
+    // header has no remove button, so without the reserved cell its
+    // Script column stretches by that width and every header from
+    // Exit code on sits to the right of its column.
+    property int removeColumnWidth: Kirigami.Units.gridUnit * 2
+
     ListModel {
         id: statesModel
     }
@@ -259,6 +266,9 @@ KCM.SimpleKCM {
                         ToolTip.text: configPage.defaultHelp
                         ToolTip.visible: hovered
                     }
+                    Item {
+                        Layout.preferredWidth: configPage.removeColumnWidth
+                    }
                 }
                 Repeater {
                     model: statesModel
@@ -335,6 +345,7 @@ KCM.SimpleKCM {
                         Button {
                             icon.name: "list-remove"
                             enabled: statesModel.count > 1
+                            Layout.preferredWidth: configPage.removeColumnWidth
                             ToolTip.text: i18n("Remove this state")
                             ToolTip.visible: hovered
                             // Serialising is left to the page-level
